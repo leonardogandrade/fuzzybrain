@@ -16,7 +16,6 @@ db = db_client.connect('college')
 @user.post('/user')
 def create_user(objectClassName: str, data: User = Body(...)):
     """Method docstring"""
-    print(objectClassName)
     
     # _user = jsonable_encoder(data)
     # new_user = db['user'].insert_one(_user)

@@ -1,10 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import Image from 'react-bootstrap/Image'
-import Icon from '../../assets/fuzzyIcon.png'
 import './style.css'
 
 import Button from 'react-bootstrap/Button';
@@ -15,110 +9,99 @@ import Card from 'react-bootstrap/Card';
 import ListGroup from 'react-bootstrap/ListGroup';
 
 import backend from '../../services/backend';
-import Modal from 'react-bootstrap/Modal';
-import Spinner from 'react-bootstrap/Spinner';
+
+import HeaderMenu from '../HeaderMenu'
 
 export default function SearchColors() {
     const [size, setSize] = useState({});
-    const [file, setFile] = useState('');
+    const [baseColor, setBaseColor] = useState('');
+    const [delta, setDelta] = useState(50);
     const [imageData, setImageData] = useState();
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         const fetchedData = await backend.get(`/image`)
-    //         setData(fetchedData.data);
-    //     }
-    //     fetchData();
-    // }, [])
-
-    const handleImage = event => {
-        setFile(event.target.files[0])
+    const handleButton = event => {
+        console.log(baseColor)
     }
 
     const handleOnSubmit = async (event) => {
 
         event.preventDefault();
-        handleShow()
+        // handleShow()
 
-        const file_data = new FormData();
-        file_data.append('file', file);
-
-        const result = await backend.post('/upload?classFilter=Lipstick', file_data);
+        const payload = {
+            "baseColor": baseColor,
+            "delta": 90
+        }
+        const result = await backend.post('/similar_colors', payload);
         setImageData(result)
 
-        handleClose()
+        // handleClose()
+        console.log(result)
 
     }
 
     return (
         <div id='screen'>
-            <Modal
-                show={show}
-                onHide={handleClose}
-                backdrop="static"
-                keyboard={false}
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Aprendendo...</Modal.Title>
-                </Modal.Header >
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                </div>
-                <br></br>
-                <Modal.Footer>
-
-                </Modal.Footer>
-            </Modal>
             <div>
-                <Navbar expand="lg" id='navbar'>
-                    <Container>
-                        <Navbar.Brand href="#home"><Image src={Icon} id='icon_logo'></Image></Navbar.Brand>
-                        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                        <Navbar.Collapse id="basic-navbar-nav">
-                            <Nav className="me-auto">
-                                <Nav.Link href="/">Home</Nav.Link>
-                                <Nav.Link href="#link">Link</Nav.Link>
-                                <NavDropdown title="Fuzzy Eye" id="basic-nav-dropdown">
-                                    <NavDropdown.Item href="/action/upload">Cadastrar</NavDropdown.Item>
-                                    <NavDropdown.Item href="/action/search_colors">
-                                        Cores similares
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item href="#action/3.3">Converter Imagem</NavDropdown.Item>
-                                    <NavDropdown.Divider />
-                                    <NavDropdown.Item href="#action/3.4">
-                                        Imagens similares
-                                    </NavDropdown.Item>
-                                </NavDropdown>
-                            </Nav>
-                        </Navbar.Collapse>
-                    </Container>
-                </Navbar>
+                <HeaderMenu />
             </div>
             <div id='main_container'>
                 <div className='left_side_container'>
-
                     <div id='search_container'>
                         <div id='search_menu'>
-                            <InputGroup className="mb-3" >
+                            <Form onSubmit={handleOnSubmit}>
+                                <InputGroup className="mb-3">
+                                    <Form.Control
+                                        placeholder="Image name"
+                                        aria-label="image name"
+                                        aria-describedby="basic-addon2"
+                                        value={baseColor}
+                                        onChange={e => setBaseColor(e.currentTarget.value)}
+                                    />
+
+                                    <Button variant="outline-secondary" id="button-addon2" type='submit' onClick={e => handleButton()}>
+                                        Buscar
+                                    </Button>
+                                </InputGroup>
                                 <Form.Control
-                                    placeholder="Image name"
+                                    placeholder="Delta"
                                     aria-label="image name"
-                                    aria-describedby="basic-addon2"
+                                    style={{ "width": "60px" }}
+                                    value={delta}
+                                    onChange={e => setDelta(e.currentTarget.value)}
                                 />
-                                <Button variant="outline-secondary" id="button-addon2">
-                                    Buscar
-                                </Button>
-                            </InputGroup>
+                            </Form>
                         </div>
                     </div>
-                    <div id='imgResult'>
-                        <div id='image-div'>
+                    <div className='imgResult'>
+                        {
+                            imageData?.data?.map(info => (
+                                <div key={info._id} className='imgBox'>
+                                    <img src={info.imagePath} alt='' />
+                                    <div className='info'>
+                                        <ListGroup className="list-group-flush">
+                                            <ListGroup.Item>
+                                                <Card.Text>
+                                                    Predominant colors:
+                                                </Card.Text>
+                                                {
+                                                    info?.predominantColors?.map(color => (
+                                                        <div style={{ "display": "flex", "flexDirection": "row" }}>
+                                                            <div style={{ "backgroundColor": color, width: "20px", height: "20px", "marginRight": "10px" }}></div>
+                                                            <div>{color}</div>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </ListGroup.Item>
+                                        </ListGroup>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                        {/* <div id='image-div'>
                             {
                                 !imageData ? '' : <img
                                     src={imageData?.data?.imagePath}
@@ -149,11 +132,11 @@ export default function SearchColors() {
                                 ))
                             ))}
                         </div>
-                        <pre>{JSON.stringify(imageData?.data?.data, undefined, 2)}</pre>
+                        <pre>{JSON.stringify(imageData?.data?.data, undefined, 2)}</pre> */}
                     </div>
                 </div>
                 <div>
-                    <Card style={{ width: '18rem' }}>
+                    {/* <Card style={{ width: '18rem' }}>
                         <Card.Body>
                             <Card.Title>{imageData?.data?.objectName}</Card.Title>
                             <Card.Text>
@@ -180,7 +163,7 @@ export default function SearchColors() {
                                 </form>
                             </div>
                         </Card.Body>
-                    </Card>
+                    </Card> */}
                 </div>
             </div>
 
@@ -189,5 +172,3 @@ export default function SearchColors() {
         </div >
     );
 }
-
-

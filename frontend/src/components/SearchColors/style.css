@@ -107,7 +107,23 @@ form#uploadSelect input {
   margin: 0;
 }
 
-#imgResult {
+.left_side_container .imgBox {
+  display: flex;
+  flex-direction: row;
+}
+
+.left_side_container .imgBox .info {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.left_side_container .imgBox img {
+  margin-top: 10px;
+  height: 150px;
+  width: 150px;
+}
+
+/* #imgResult {
   display: flex;
   position: absolute;
   flex-direction: row;
@@ -117,4 +133,4 @@ form#uploadSelect input {
 #imgResult pre {
   background-color: #ffffff;
   padding: 10px 10px 10px 10px;
-}
+} */
