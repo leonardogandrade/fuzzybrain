@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import './style.css'
 
 import Button from 'react-bootstrap/Button';
@@ -13,14 +13,10 @@ import backend from '../../services/backend';
 import HeaderMenu from '../HeaderMenu'
 
 export default function SearchColors() {
-    const [size, setSize] = useState({});
     const [baseColor, setBaseColor] = useState('');
     const [delta, setDelta] = useState(50);
     const [imageData, setImageData] = useState();
-    const [show, setShow] = useState(false);
-
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    
 
     const handleButton = event => {
         console.log(baseColor)
@@ -29,16 +25,14 @@ export default function SearchColors() {
     const handleOnSubmit = async (event) => {
 
         event.preventDefault();
-        // handleShow()
 
         const payload = {
             "baseColor": baseColor,
-            "delta": 90
+            delta
         }
         const result = await backend.post('/similar_colors', payload);
         setImageData(result)
 
-        // handleClose()
         console.log(result)
 
     }
